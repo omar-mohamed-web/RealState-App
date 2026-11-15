@@ -1,0 +1,77 @@
+import Hero from "../../components/HeroSection/Hero.jsx";
+import dev from "../../assets/dev.png";
+import api from "../utils/api";
+import { useEffect, useState } from "react";
+import FutureCards from "../../components/Cards/FutureCards";
+import CardLogo1 from "../../assets/CardLogo1.svg";
+import DetailsBtn from "../../components/Buttons/DetailsBtn";
+
+import { useNavigate } from "react-router-dom";
+function Developers() {
+  const navigate = useNavigate();
+  const [developers, setDevelopers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const getDeveloper = async () => {
+    try {
+      const response = await api.get("/developer");
+      const data = response.data;
+      setDevelopers(Array.isArray(data) ? data : data?.data ?? []);
+    } catch (err) {
+      console.error("Unable to load developers:", err);
+      setDevelopers([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    getDeveloper();
+  }, []);
+  if (loading) {
+    return <div className="m-10 text-center font-lato text-[#847D7D]">Loading developers...</div>;
+  }
+  if (!developers.length) {
+    return (
+      <div>
+        <Hero
+          bg={dev}
+          title={"Defining the Future Skyline."}
+          desc={"Great developments require more than just capital; they require a narrative. We provide the elite marketing and specialized brokerage services needed to position your landmark projects in front of the world’s most discerning buyers."}
+          icons={true}
+        />
+        <p className="m-10 text-center font-lato text-[#847D7D]">No developers are available right now. Please try again later.</p>
+      </div>
+    );
+  }
+  return (
+    <div>
+      <Hero
+        bg={dev}
+        title={"Defining the Future Skyline."}
+        desc={
+          "Great developments require more than just capital; they require a narrative. We provide the elite marketing and specialized brokerage services needed to position your landmark projects in front of the world’s most discerning buyers."
+        }
+        icons={true}
+      />
+      <section className="grid grid-cols-1 gap-5 sm:grid sm:grid-cols-1 md:grid md:grid-cols-2 lg:grid lg:grid-cols-3 m-10 px-20">
+        {developers.map((developer) => {
+          return (
+            <div key={developer.id}>
+              <FutureCards
+                id={developer.id}
+                imgSrc={developer.images}
+                logo={CardLogo1}
+                btn={
+                  <DetailsBtn
+                    onClick={() => navigate(`/developers/${developer.id}`)}
+                  />
+                }
+              />
+            </div>
+          );
+        })}
+      </section>
+    </div>
+  );
+}
+
+export default Developers;
